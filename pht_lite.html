@@ -1,0 +1,183 @@
+<html>
+
+<head>
+    <link rel="icon" sizes="any" href="https://www.zooniverse.org/projects/assets/icon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+        li>span {
+            width: 8ch;
+            display: inline-block;
+        }
+
+        h1 {
+            font-size: 90%;
+        }
+
+        body {
+            margin-left: 2vw;
+        }
+
+        button[name="next"] {
+            padding: 4px 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>Loading...</h1>
+    </main>
+    <br style="line-height: 8px;">
+    <div>
+        <button type="submit" name="next">Next Target</button>
+        <input type="checkbox" name="open_lc" checked><span style="font-size: 80%;">auto-open the lightcurve in a new tab</span>
+    </div>
+    <!--
+    <br>
+    The subject is randomly chosen from: <a
+        href="https://archive.stsci.edu/missions/tess/download_scripts/sector/tesscurl_sector_80_lc.sh"
+        target="_sh_file">tesscurl_sector_80_lc.sh</a>
+
+        Server logic: get a random line from lc fits bulk download script
+        https://stackoverflow.com/a/56973905
+
+        Log a line at the server side on the TIC-sector chosen
+
+        Steps to prepare the .sh file
+        # First insert a line to indicate the source
+        echo \# https://archive.stsci.edu/missions/tess/download_scripts/sector/tesscurl_sector_80_lc.sh > sector_lc.sh
+        # Then include the actual .sh content
+        curl https://archive.stsci.edu/missions/tess/download_scripts/sector/tesscurl_sector_80_lc.sh >> sector_lc.sh
+        -->
+
+    <script type="text/javascript">
+        const source_default = "tesscurl_sector_79_lc.sh"
+
+        function to_url(source) {
+            if (source.match("^https?://")) {
+                return source;
+            }
+            return `https://archive.stsci.edu/missions/tess/download_scripts/sector/${source}`;
+        }
+
+
+        function doFetch(url, options=null) {
+            return fetch(url, options);
+        }
+
+        async function fetchAsText(url, options=null) {
+
+            // console.debug("Fetch: ", url);
+            const resp = await fetch(url, options);
+            const respBody = await resp.text();
+            // OPEN: do we cache it in localStorage? browser cache is probably good enough
+            // if (resp.status === 200) {
+            //     // localStorage.setItem(cacheKey, respBody);
+            // }
+            return respBody;
+        }
+
+
+        async function getDownloadScriptLines() {
+            const url = to_url(source_default);  // LATER: configurable from hash
+
+            const sh_text = await fetchAsText(url);
+            const sh_lines = sh_text.split("\n");
+
+            return sh_lines;
+        }
+
+
+        /**
+         * Returns a random integer between min (inclusive) and max (inclusive).
+         * The value is no lower than min (or the next integer greater than min
+         * if min isn't an integer) and no greater than max (or the next integer
+         * lower than max if max isn't an integer).
+         * Using Math.round() will give you a non-uniform distribution!
+         */
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function parseLine(line) {
+            // Parse line such as
+            // curl -C - -L -o tess2024170053053-s0080-0000000001378892-0275-s_lc.fits https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:TESS/product/tess2024170053053-s0080-0000000001378892-0275-s_lc.fits
+            const [, uri] = line.match(/[?]uri=(.+)/) || [null, null];
+            const [, sector, tic] =  uri?.match(/-s0*(\d+)-0*(\d+)-/) || [null, null, null];
+            return {
+                tic,
+                sector,
+                uri,
+            };
+        }
+
+        async function getNextTic() {
+            const sh_lines = await getDownloadScriptLines();
+            // console.debug(sh_lines.length, sh_lines[1]);
+
+            // skip the first line (idx == 0), as it's #!/bin/sh
+            const idx = getRandomInt(1, sh_lines.length - 1);
+            const line = sh_lines[idx];
+            // console.debug('idx ', idx,  '/', sh_lines.length, ': ', line);
+
+            const ticInfo = parseLine(line);
+            // console.debug('tic:', ticInfo);
+            return ticInfo;
+        }
+
+        async function loadNextTic() {
+            const info = await getNextTic();
+            console.debug('Next:', info);
+            const [tic, sector, uri] = [info.tic, info.sector, info.uri];
+            document.querySelector('main').outerHTML=`
+<main data-tic="${tic}" data-sector="${sector}" data-uri="${uri}">
+    <h1>A TIC from sector ${sector}</h1>
+        <ul>
+            <li><span>View</span> <a id="link_lcviz"
+                    href="https://mast.stsci.edu/viz/ui/#/lcviz?uri=${encodeURIComponent(uri)}"
+                    target="_blank">Lightcurve</a></li>
+            <li id="params_ctr"></li>
+            <li><span>Search</span> <a
+                    href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/search?query=TIC+${tic}"
+                    target="_pht_talk">PHT Talk</a> about the TIC</li>
+            <li><span>Post</span> <a
+                    href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/2110"
+                    target="_pht_talk_new_thread">a new thread</a> about the TIC on PHT Talk</li>
+            <li>More about the target
+                <!--
+                        Maybe: get radius / Teff from ExoFOP  and display it
+                            https://exofop.ipac.caltech.edu/tess/download_stellar.php?id=7548817
+                        This is more comprehensive but probably  overkill:
+                            https://exofop.ipac.caltech.edu/tess/target.php?id=7548817&json
+
+                        Link to FLI?
+                    -->
+                <ul>
+                    <li><a href="https://exofop.ipac.caltech.edu/tess/target.php?id=${tic}" target="_exofop">ExoFOP</a></li>
+                    <li><a href="https://exo.mast.stsci.edu/" target="_tces">TCEs</a></li>
+                </ul>
+            </li>
+        </ul>
+</main>
+`;
+
+            // automatically launch LC
+            if (document.querySelector(`input[name="open_lc"]`).checked) {
+                // lcviz's target is set to "_blank" (instead of a fixed tab) because
+                // lcviz doesn't response to the new URL in the tab (with only changes in hash)
+                document.querySelector('a[id="link_lcviz"]').click();
+            }
+        } // async function loadNextTic()
+
+
+        // the setup
+        document.querySelector('button[name="next"]').onclick = loadNextTic;
+        loadNextTic();
+
+    </script>
+</body>
+
+</html>
