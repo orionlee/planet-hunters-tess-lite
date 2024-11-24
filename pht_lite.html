@@ -97,7 +97,10 @@
 
 
         async function getDownloadScriptLines() {
-            const url = to_url(source_default);  // LATER: configurable from hash
+            // by default get download script specified at `source_default`
+            // can be overridden in URL has. E.g.,  #source=tesscurl_sector_82_lc.sh
+            const [, source] = location.hash.match(/source=([^&]+)/) || [, source_default];
+            const url = to_url(source);
 
             const sh_text = await fetchAsText(url);
             const sh_lines = sh_text.split("\n");
