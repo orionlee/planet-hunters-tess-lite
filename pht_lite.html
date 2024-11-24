@@ -139,13 +139,19 @@
             //     https://exofop.ipac.caltech.edu/tess/target.php?id=7548817&json
 
 
+            // Note: link to lcviz at MAST is set with target="_blank", because
+            // lcviz doesn't response to the new URL in the tab (with only changes in hash)
             document.querySelector('main').outerHTML=`
 <main data-tic="${tic}" data-sector="${sector}" data-uri="${uri}">
     <h1>A TIC from sector ${sector}</h1>
         <ul>
-            <li><span>View</span> <a id="link_lcviz"
+            <li><span>View</span> Lightcurve at&emsp;
+                <a id="link_eta" href=" https://eta-earth.org/tess_fits_play.html?uri=${uri}" target="_eta">ETA-Earth</a>,&ensp;&ensp;
+                <a id="link_lcviz"
                     href="https://mast.stsci.edu/viz/ui/#/lcviz?uri=${encodeURIComponent(uri)}"
-                    target="_blank">Lightcurve</a></li>
+                    target="_blank">MAST</a>, or&ensp;
+                <a id="link_fli" href="https://fast-lightcurve-inspector.osc-fr1.scalingo.io/${tic}" target="_fli">FLI<a>
+            </li>
             <li id="params_ctr"></li>
             <li><span>Search</span> <a
                     href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/search?query=TIC+${tic}"
@@ -168,9 +174,7 @@
 
             // automatically launch LC
             if (document.querySelector(`input[name="open_lc"]`).checked) {
-                // lcviz's target is set to "_blank" (instead of a fixed tab) because
-                // lcviz doesn't response to the new URL in the tab (with only changes in hash)
-                document.querySelector('a[id="link_lcviz"]').click();
+                document.querySelector('a[id="link_eta"]').click();
             }
         } // async function loadNextTic()
 
