@@ -27,12 +27,18 @@
 
 <body>
     <main>
-        <h1>Loading...</h1>
+        <h1>Planet Hunters TESS Lite</h1>
+        Loading...
     </main>
     <br style="line-height: 8px;">
     <div>
         <button type="submit" name="next" accesskey="N"><span style="text-decoration: underline;">N</span>ext Target</button>
         <input type="checkbox" name="open_lc" checked><span style="font-size: 80%;">auto-open the lightcurve in a new tab</span>
+        <select name="lc_target" style="font-size: 70%;">
+            <option value="eta">ETA-Earth</option>
+            <option value="lcviz">MAST</option>
+            <option value="fli">FLI</option>
+    </select>
     </div>
     <!--
     <br>
@@ -147,23 +153,22 @@
     <h1>TIC ${tic} Sector ${sector}</h1>
         <ul>
             <li><span>View</span> Lightcurve at&emsp;
-                <a id="link_eta" href=" https://eta-earth.org/tess_fits_play.html?uri=${uri}" target="_eta">ETA-Earth</a>,&ensp;&ensp;
-                <a id="link_lcviz"
+                <a id="link_eta" title="TESS Light Curve Explorer at eta-earth.org"
+                    href=" https://eta-earth.org/tess_fits_play.html?uri=${uri}" target="_eta">ETA-Earth</a>,&ensp;&ensp;
+                <a id="link_lcviz" title="LvViz Viewer at MAST"
                     href="https://mast.stsci.edu/viz/ui/#/lcviz?uri=${encodeURIComponent(uri)}"
                     target="_blank">MAST</a>, or&ensp;
-                <a id="link_fli" href="https://fast-lightcurve-inspector.osc-fr1.scalingo.io/${tic}" target="_fli">FLI<a>
+                <a id="link_fli" title="Fast Lightcurve Inspector"
+                    href="https://fast-lightcurve-inspector.osc-fr1.scalingo.io/${tic}" target="_fli">FLI<a>
             </li>
             <li id="params_ctr"></li>
             <li><span>Search</span> <a
                     href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/search?query=TIC+${tic}"
-                    target="_pht_talk">PHT Talk</a> about the TIC</li>
+                    target="_pht_talk">PHT Talk</a><small> about the TIC</small></li>
             <li><span>Post</span> <a
                     href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/2110"
-                    target="_pht_talk_new_thread">a new thread</a> about the TIC on PHT Talk</li>
-            <li>
-                <details>
-                    <summary>More about the target</summary> TIC ${tic}
-                </details>
+                    target="_pht_talk_new_thread">a new thread</a><small> about the TIC on PHT Talk</small></li>
+            <li>More information
                 <ul>
                     <li><a href="https://exofop.ipac.caltech.edu/tess/target.php?id=${tic}" target="_exofop">ExoFOP</a></li>
                     <li><a href="https://exo.mast.stsci.edu/" target="_tces">TCEs</a></li>
@@ -175,7 +180,8 @@
 
             // automatically launch LC
             if (document.querySelector(`input[name="open_lc"]`).checked) {
-                document.querySelector('a[id="link_eta"]').click();
+                const lcTarget = document.querySelector('select[name="lc_target"]')?.value || 'eta';
+                document.querySelector(`a[id="link_${lcTarget}"]`).click();
             }
         } // async function loadNextTic()
 
