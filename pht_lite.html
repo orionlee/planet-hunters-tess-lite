@@ -30,7 +30,7 @@
     </main>
     <br style="line-height: 8px;">
     <div>
-        <button type="submit" name="next">Next Target</button>
+        <button type="submit" name="next" accesskey="N"><span style="text-decoration: underline;">N</span>ext Target</button>
         <input type="checkbox" name="open_lc" checked><span style="font-size: 80%;">auto-open the lightcurve in a new tab</span>
     </div>
     <!--
@@ -132,6 +132,13 @@
             const info = await getNextTic();
             console.debug('Next:', info);
             const [tic, sector, uri] = [info.tic, info.sector, info.uri];
+
+            // TODO:: get radius / Teff from ExoFOP  and display it (in #params_ctr)
+            //     https://exofop.ipac.caltech.edu/tess/download_stellar.php?id=7548817
+            // This endpoint is more comprehensive but probably  overkill:
+            //     https://exofop.ipac.caltech.edu/tess/target.php?id=7548817&json
+
+
             document.querySelector('main').outerHTML=`
 <main data-tic="${tic}" data-sector="${sector}" data-uri="${uri}">
     <h1>A TIC from sector ${sector}</h1>
@@ -146,15 +153,10 @@
             <li><span>Post</span> <a
                     href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/2110"
                     target="_pht_talk_new_thread">a new thread</a> about the TIC on PHT Talk</li>
-            <li>More about the target
-                <!--
-                        Maybe: get radius / Teff from ExoFOP  and display it
-                            https://exofop.ipac.caltech.edu/tess/download_stellar.php?id=7548817
-                        This is more comprehensive but probably  overkill:
-                            https://exofop.ipac.caltech.edu/tess/target.php?id=7548817&json
-
-                        Link to FLI?
-                    -->
+            <li>
+                <details>
+                    <summary>More about the target</summary> TIC ${tic}
+                </details>
                 <ul>
                     <li><a href="https://exofop.ipac.caltech.edu/tess/target.php?id=${tic}" target="_exofop">ExoFOP</a></li>
                     <li><a href="https://exo.mast.stsci.edu/" target="_tces">TCEs</a></li>
