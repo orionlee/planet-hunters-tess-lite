@@ -46,6 +46,10 @@
             <option value="fli">FLI</option>
     </select>
     </div>
+    <br style="line-height: 24px;">
+    <div id="stats_ctr" style="font-size: 80%;">
+        <span id="stats_val"></span> presented to you.
+    </div>
     <!--
     <br>
     The subject is randomly chosen from: <a
@@ -189,8 +193,19 @@
                 const lcTarget = document.querySelector('select[name="lc_target"]')?.value || 'eta';
                 document.querySelector(`a[id="link_${lcTarget}"]`).click();
             }
+
+            updateAndShowCount();
+
         } // async function loadNextTic()
 
+        function updateAndShowCount() {
+            let count = localStorage["_count"] || 0;
+            count++;
+            localStorage["_count"] = count;
+
+            const msg = (count > 1) ? `${count} TICs` : `${count} TIC`;
+            document.querySelector('#stats_val').textContent = msg;
+        }
 
         // the setup
         document.querySelector('button[name="next"]').onclick = loadNextTic;
