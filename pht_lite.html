@@ -36,7 +36,7 @@
         <h1>Planet Hunters TESS Lite</h1>
         Loading...
     </main>
-    <br style="line-height: 8px;">
+    <div style="height: 16px;"></div>
     <div>
         <button type="submit" name="next" accesskey="N"><span style="text-decoration: underline;">N</span>ext Target</button>
         <input type="checkbox" name="open_lc" checked><span style="font-size: 80%;">auto-open the lightcurve in a new tab</span>
@@ -44,7 +44,15 @@
             <option value="eta">ETA-Earth</option>
             <option value="lcviz">MAST</option>
             <option value="fli">FLI</option>
-    </select>
+        </select>
+        <div style="height: 16px;"></div>
+        <div>
+            <button name="copy" accesskey="C"><span style="text-decoration: underline;">C</span>opy</button> TIC/sector &emsp;<input type="checkbox" name="copy_on_link_post_comment" checked><span style="font-size: 80%;"> auto-copy on clicking post a new thread</span>
+            <div style="min-height: 1.2rem; margin: 4px;">
+                <span id="copy_status_ctr" style="background-color: rgba(255, 255, 0, 0.7); font-size: 80%;"></span>
+            </div>
+        </div>
+
     </div>
     <br style="line-height: 24px;">
     <div id="stats_ctr" style="font-size: 80%;">
@@ -172,13 +180,13 @@
                     href="https://mast.stsci.edu/viz/ui/#/lcviz?uri=${encodeURIComponent(uri)}"
                     target="_blank">MAST</a>, or&ensp;
                 <a id="link_fli" title="Fast Lightcurve Inspector"
-                    href="https://fast-lightcurve-inspector.osc-fr1.scalingo.io/${tic}" target="_fli">FLI<a>
+                    href="https://fast-lightcurve-inspector.osc-fr1.scalingo.io/${tic}" target="_fli">FLI</a>
             </li>
             <li id="params_ctr"></li>
             <li><span>Search</span> <a
                     href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/search?query=TIC+${tic}"
                     target="_pht_talk">PHT Talk</a><small> about the TIC</small></li>
-            <li><span>Post</span> <a
+            <li><span>Post</span> <a id="link_post_comment"
                     href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/6723"
                     target="_pht_talk_new_thread">a new thread</a><small> about the TIC on PHT Talk</small></li>
             <li>More information
@@ -199,6 +207,23 @@
 
             updateAndShowCount();
 
+            // Setup for copy boilerplate (TIC/Sector) to clipboard
+
+            function copyBoilerplateToClipboard() {
+                const msg = `TIC ${tic}, sector ${sector}`
+                navigator.clipboard.writeText(msg);
+                document.getElementById('copy_status_ctr').innerText = `"${msg}" copied to clipboard.`;
+            }
+
+            function onClickPostComment(evt) {
+                if (!document.querySelector('input[name="copy_on_link_post_comment"]').checked) {
+                    return;
+                }
+                copyBoilerplateToClipboard();
+            }
+
+            document.querySelector('button[name="copy"]').onclick = copyBoilerplateToClipboard;
+            document.querySelector('a[id="link_post_comment"]').onclick = onClickPostComment;
         } // async function loadNextTic()
 
         function updateAndShowCount() {
@@ -210,7 +235,11 @@
             document.querySelector('#stats_val').textContent = msg;
         }
 
+
+
+        //
         // the setup
+        //
         document.querySelector('button[name="next"]').onclick = loadNextTic;
         loadNextTic();
 
