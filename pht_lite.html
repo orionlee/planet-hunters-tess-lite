@@ -9,10 +9,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
     <style type="text/css">
         li>span {
-            width: 8ch;
+            width: 70px;
             display: inline-block;
         }
-
+        li>span~div { /* 2nd line of a li body */
+            margin-left: 70px;
+            font-size: 80%;
+            margin-top: 4px;
+        }
+        li>span~div>b {
+            background-color: rgba(255, 255, 0, 0.7);
+            padding-left: 0.5ch;
+            padding-right: 0.5ch;
+        }
         h1 {
             font-size: 90%;
         }
@@ -196,7 +205,10 @@
                     target="_pht_talk">PHT Talk</a><small> about the TIC</small></li>
             <li><span>Post</span> <a id="link_post_comment"
                     href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess/talk/6723"
-                    target="_pht_talk_new_thread">a new thread</a><small> about the TIC on PHT Talk</small></li>
+                    target="_pht_talk_new_thread">a new thread</a><small> about the TIC on PHT Talk</small>
+                <div>
+                    Please <b>include TIC in the comment</b> in addition to the title, so that it can be searched by TIC.
+                </div></li>
             <li>More information
                 <ul>
                     <li><a href="https://exofop.ipac.caltech.edu/tess/target.php?id=${tic}" target="_exofop">ExoFOP</a></li>
