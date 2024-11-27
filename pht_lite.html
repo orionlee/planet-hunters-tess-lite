@@ -173,6 +173,12 @@
             return ticInfo;
         }
 
+
+        function getExoFopUrlSuffix() {
+            return localStorage["_exofop_url_suffix"] || '';
+        }
+
+
         async function loadNextTic() {
             const info = await getNextTic();
             console.debug('Next:', info);
@@ -183,6 +189,9 @@
             // This endpoint is more comprehensive but probably  overkill:
             //     https://exofop.ipac.caltech.edu/tess/target.php?id=7548817&json
 
+            // e.g, append '#open=simbad|_vsx' to open links to SIMBAD and VSX
+            //      (relying on my userjs on ExoFOP)
+            const exofop_url_suffix = getExoFopUrlSuffix();
 
             // Note: link to lcviz at MAST is set with target="_blank", because
             // lcviz doesn't response to the new URL in the tab (with only changes in hash)
@@ -211,7 +220,7 @@
                 </div></li>
             <li>More information
                 <ul>
-                    <li><a href="https://exofop.ipac.caltech.edu/tess/target.php?id=${tic}" target="_exofop">ExoFOP</a></li>
+                    <li><a href="https://exofop.ipac.caltech.edu/tess/target.php?id=${tic}${exofop_url_suffix}" target="_exofop">ExoFOP</a></li>
                     <li>TCEs at&emsp;
                         <a href="https://exo.mast.stsci.edu/" target="_exomast">ExoMast</a>,&ensp;&ensp;
                         <a href="https://tess-tces-fqhnyorhza-uw.a.run.app/tces?tic=${tic}" target="_tces">tess-tces</a>
