@@ -148,10 +148,22 @@
         }
 
         function parseLine(line) {
-            // Parse line such as
-            // curl -C - -L -o tess2024170053053-s0080-0000000001378892-0275-s_lc.fits https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:TESS/product/tess2024170053053-s0080-0000000001378892-0275-s_lc.fits
-            const [, uri] = line.match(/[?]uri=(.+)/) || [null, null];
-            const [, sector, tic] =  uri?.match(/-s0*(\d+)-0*(\d+)-/) || [null, null, null];
+            console.debug('parseLine:\n', line);
+            const [, uri] = line.match(/[?]uri=(.+[.]fits)/) || [null, null];
+            let [sector, tic] = [null, null];
+            if (uri?.match('hlsp_qlp')) {
+                // case for QLP (https://archive.stsci.edu/hlsp/qlp), e.g.,
+                // curl -f --create-dirs --output 's0074/0000/0000/0754/7487/hlsp_qlp_tess_ffi_s0074-0000000007547487_tess_v01_llc.fits' 'https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:HLSP/qlp/s0074/0000/0000/0754/7487/hlsp_qlp_tess_ffi_s0074-0000000007547487_tess_v01_llc.fits'
+                [, sector, tic] =  uri?.match(/_s0*(\d+)-0*(\d+)_/) || [null, null, null];
+            } else if (uri?.match('hlsp_tess-spoc')) {
+                // case HLSP TESS-SPOC (https://archive.stsci.edu/hlsp/tess-spoc), e.g.,
+                // curl -f --create-dirs -C - --output 's0072/target/0000/0009/0253/5882/hlsp_tess-spoc_tess_phot_0000000902535882-s0072_tess_v1_lc.fits' 'https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:HLSP/tess-spoc/s0072/target/0000/0009/0253/5882/hlsp_tess-spoc_tess_phot_0000000902535882-s0072_tess_v1_lc.fits'
+                [, tic, sector] =  uri?.match(/_0*(\d+)-s0*(\d+)_/) || [null, null, null];
+            } else {
+                // default: assumed to be SPOC 2 minute cadence data, e.g.,
+                // curl -C - -L -o tess2024170053053-s0080-0000000001378892-0275-s_lc.fits https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:TESS/product/tess2024170053053-s0080-0000000001378892-0275-s_lc.fits
+                [, sector, tic] =  uri?.match(/-s0*(\d+)-0*(\d+)-/) || [null, null, null];
+            }
             return {
                 tic,
                 sector,
