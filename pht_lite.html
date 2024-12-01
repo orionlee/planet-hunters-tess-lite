@@ -137,19 +137,6 @@
         }
 
 
-        /**
-         * Returns a random integer between min (inclusive) and max (inclusive).
-         * The value is no lower than min (or the next integer greater than min
-         * if min isn't an integer) and no greater than max (or the next integer
-         * lower than max if max isn't an integer).
-         * Using Math.round() will give you a non-uniform distribution!
-         */
-        function getRandomInt(min, max) {
-            min = Math.ceil(min);
-            max = Math.floor(max);
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
         function parseLine(line) {
             console.debug('parseLine:\n', line);
             const [, uri] = line.match(/[?]uri=(.+[.]fits)/) || [null, null];
@@ -174,14 +161,64 @@
             };
         }
 
-        async function getNextTic() {
-            const sh_lines = await getDownloadScriptLines();
-            // console.debug(sh_lines.length, sh_lines[1]);
 
+        /**
+         * Returns a random integer between min (inclusive) and max (inclusive).
+         * The value is no lower than min (or the next integer greater than min
+         * if min isn't an integer) and no greater than max (or the next integer
+         * lower than max if max isn't an integer).
+         * Using Math.round() will give you a non-uniform distribution!
+         */
+         function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+
+        function getRandomLine(sh_lines) {
             // skip the first line (idx == 0), as it's #!/bin/sh
             const idx = getRandomInt(1, sh_lines.length - 1);
             const line = sh_lines[idx];
             // console.debug('idx ', idx,  '/', sh_lines.length, ': ', line);
+            return line;
+        }
+
+
+        function getLineOfTic(sh_lines, tic) {
+            for (const l of sh_lines) {
+                if (l.match(`[-_]0*${tic}[-_]`)) {
+                    return l;
+                }
+            }
+            return null;
+        }
+
+
+        async function getNextTic() {
+            const sh_lines = await getDownloadScriptLines();
+            // console.debug(sh_lines.length, sh_lines[1]);
+
+            const [, tic] = location.hash.match(/[#&]?tic=(\d+)/) || [null, null];
+
+            let line = null;
+            if (tic) {
+                // case a tic is specified in hash, try to locate it
+                line = getLineOfTic(sh_lines, tic);
+                if (line) {
+                    // reset the hash so that the TIC won't be used again
+                    // (don't reset the hash for case the TIC not found, as a visual hint that the TIC is not found)
+                    history.pushState("", document.title, location.pathname + location.search + location.hash.replace(/[#&]?tic=\d+/, ''));
+                } else {
+                    console.warn(`getNextTic(): TIC ${tic} is requested, but cannot be found. Use random one`)
+                }
+            }
+
+            if (!line) {
+                // normal case, get random line
+                // (case TIC specified but not found)
+                line = getRandomLine(sh_lines);
+            }
 
             const ticInfo = parseLine(line);
             // console.debug('tic:', ticInfo);
