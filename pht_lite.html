@@ -308,8 +308,10 @@
                 copyBoilerplateToClipboard();
             }
 
-            document.querySelector('button[name="copy"]').onclick = copyBoilerplateToClipboard;
             document.querySelector('a[id="link_post_comment"]').onclick = onClickPostComment;
+            document.querySelector('button[name="copy"]').onclick = copyBoilerplateToClipboard;
+            document.getElementById('copy_status_ctr').innerText = "";  // clear copy status message
+
         } // async function loadNextTic()
 
         function updateAndShowCount() {
