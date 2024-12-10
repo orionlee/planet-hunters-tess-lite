@@ -61,6 +61,7 @@
             <option value="eta">ETA-Earth</option>
             <option value="lcviz">MAST</option>
             <option value="fli">FLI</option>
+            <option value="tesslc">TESS LCs</option>
         </select>
         <div style="height: 16px;"></div>
         <div>
@@ -256,9 +257,11 @@
                     href=" https://eta-earth.org/tess_fits_play.html?uri=${uri}" target="_eta">ETA-Earth</a>,&ensp;&ensp;
                 <a id="link_lcviz" title="LvViz Viewer at MAST"
                     href="https://mast.stsci.edu/viz/ui/#/lcviz?uri=${encodeURIComponent(uri)}"
-                    target="_blank">MAST</a>, or&ensp;
+                    target="_blank">MAST</a>,&ensp;&ensp;
                 <a id="link_fli" title="Fast Lightcurve Inspector"
-                    href="https://fast-lightcurve-inspector.osc-fr1.scalingo.io/${tic}" target="_fli">FLI</a>
+                    href="https://fast-lightcurve-inspector.osc-fr1.scalingo.io/${tic}" target="_fli">FLI</a>, or&ensp;
+                <a id="link_tesslc" title="TESS Lightcurves app"
+                    href="https://tess-lightcurves.streamlit.app?tic=${tic}" target="_tesslc">TESS LCs</a>
             </li>
             <li id="params_ctr"></li>
             <li><span>Search</span> <a
